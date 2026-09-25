@@ -1,0 +1,199 @@
+{
+  "model": "tfidf-logreg-router",
+  "model_meta": {
+    "name": "tfidf-logreg-router",
+    "seed": 704,
+    "n_train": 600,
+    "train_data_sha": "757825ca9c6539e1",
+    "sklearn": "1.6.1"
+  },
+  "n_examples": 60,
+  "seed": 704,
+  "accuracy": 0.85,
+  "accuracy_ci95": [
+    0.75,
+    0.9333
+  ],
+  "macro_f1": 0.8536,
+  "macro_f1_ci95": [
+    0.7524,
+    0.9343
+  ],
+  "per_class": {
+    "account": {
+      "precision": 0.9333,
+      "recall": 0.9333,
+      "f1": 0.9333,
+      "support": 15
+    },
+    "billing": {
+      "precision": 0.6842,
+      "recall": 0.8667,
+      "f1": 0.7647,
+      "support": 15
+    },
+    "shipping": {
+      "precision": 0.8571,
+      "recall": 0.8,
+      "f1": 0.8276,
+      "support": 15
+    },
+    "technical": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 15
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "account",
+      "billing",
+      "shipping",
+      "technical"
+    ],
+    "rows_true_cols_pred": [
+      [
+        14,
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        13,
+        1,
+        0
+      ],
+      [
+        0,
+        3,
+        12,
+        0
+      ],
+      [
+        0,
+        2,
+        1,
+        12
+      ]
+    ]
+  },
+  "slices": {
+    "channel": {
+      "chat": {
+        "n": 30,
+        "accuracy": 0.8667,
+        "macro_f1": 0.8728
+      },
+      "email": {
+        "n": 30,
+        "accuracy": 0.8333,
+        "macro_f1": 0.8311
+      }
+    }
+  },
+  "calibration": {
+    "brier": 0.2881,
+    "ece": 0.1816,
+    "low_confidence_rate": 0.2833,
+    "reliability_table": [
+      {
+        "bin": "0.2-0.4",
+        "n": 5,
+        "mean_confidence": 0.3553,
+        "accuracy": 0.6
+      },
+      {
+        "bin": "0.4-0.6",
+        "n": 21,
+        "mean_confidence": 0.493,
+        "accuracy": 0.7143
+      },
+      {
+        "bin": "0.6-0.8",
+        "n": 14,
+        "mean_confidence": 0.7082,
+        "accuracy": 0.9286
+      },
+      {
+        "bin": "0.8-1.0",
+        "n": 20,
+        "mean_confidence": 0.903,
+        "accuracy": 1.0
+      }
+    ]
+  },
+  "contract": {
+    "schema": "TicketRouted v1",
+    "n_messages": 60,
+    "schema_valid_rate": 1.0,
+    "violations": []
+  },
+  "errors": [
+    {
+      "id": "g011",
+      "text": "Is sales tax included in the total at checkout?",
+      "label": "billing",
+      "predicted": "shipping",
+      "confidence": 0.616
+    },
+    {
+      "id": "g015",
+      "text": "When will the refund actually hit my bank account?",
+      "label": "billing",
+      "predicted": "account",
+      "confidence": 0.423
+    },
+    {
+      "id": "g023",
+      "text": "Search returns no results even for items I know exist.",
+      "label": "technical",
+      "predicted": "billing",
+      "confidence": 0.552
+    },
+    {
+      "id": "g025",
+      "text": "The API is returning timeouts for every request.",
+      "label": "technical",
+      "predicted": "shipping",
+      "confidence": 0.522
+    },
+    {
+      "id": "g026",
+      "text": "Dark mode makes some of the text unreadable.",
+      "label": "technical",
+      "predicted": "billing",
+      "confidence": 0.368
+    },
+    {
+      "id": "g042",
+      "text": "Please update my phone number for verification texts.",
+      "label": "account",
+      "predicted": "billing",
+      "confidence": 0.452
+    },
+    {
+      "id": "g053",
+      "text": "My order has been stuck in transit for two weeks.",
+      "label": "shipping",
+      "predicted": "billing",
+      "confidence": 0.498
+    },
+    {
+      "id": "g056",
+      "text": "The courier left my parcel with a neighbor I don't know.",
+      "label": "shipping",
+      "predicted": "billing",
+      "confidence": 0.324
+    },
+    {
+      "id": "g058",
+      "text": "I need to send this item back, how do I get a return label?",
+      "label": "shipping",
+      "predicted": "billing",
+      "confidence": 0.476
+    }
+  ],
+  "fingerprint": "aa0fa23474651ed2"
+}

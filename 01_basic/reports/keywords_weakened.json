@@ -1,0 +1,741 @@
+{
+  "model": "keyword-router-v1-WEAKENED",
+  "n_examples": 60,
+  "label_counts": {
+    "account": 15,
+    "billing": 15,
+    "shipping": 15,
+    "technical": 15
+  },
+  "accuracy": 0.1,
+  "macro_f1": 0.1802,
+  "per_class": {
+    "account": {
+      "precision": 1.0,
+      "recall": 0.0667,
+      "f1": 0.125,
+      "support": 15
+    },
+    "billing": {
+      "precision": 1.0,
+      "recall": 0.1333,
+      "f1": 0.2353,
+      "support": 15
+    },
+    "shipping": {
+      "precision": 1.0,
+      "recall": 0.0667,
+      "f1": 0.125,
+      "support": 15
+    },
+    "technical": {
+      "precision": 1.0,
+      "recall": 0.1333,
+      "f1": 0.2353,
+      "support": 15
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "account",
+      "billing",
+      "shipping",
+      "technical"
+    ],
+    "columns": [
+      "account",
+      "billing",
+      "shipping",
+      "technical",
+      "(off-contract)"
+    ],
+    "rows_true_cols_pred": [
+      [
+        1,
+        0,
+        0,
+        0,
+        14
+      ],
+      [
+        0,
+        2,
+        0,
+        0,
+        13
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        14
+      ],
+      [
+        0,
+        0,
+        0,
+        2,
+        13
+      ]
+    ]
+  },
+  "contract": {
+    "schema": "TicketRouted v1",
+    "n_messages": 60,
+    "schema_valid_rate": 0.1,
+    "violations": [
+      {
+        "ticket_id": "g001",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g003",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g004",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g005",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g006",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g007",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g008",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g009",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g010",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g011",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g012",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g013",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g014",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g018",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g019",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g020",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g021",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g022",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g023",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g024",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g025",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g026",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g027",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g028",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g029",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g030",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g032",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g033",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g034",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g035",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g036",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g037",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g038",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g039",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g040",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g041",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g042",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g043",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g044",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g045",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g047",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g048",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g049",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g050",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g051",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g052",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g053",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g054",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g055",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g056",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g057",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g058",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g059",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      },
+      {
+        "ticket_id": "g060",
+        "errors": [
+          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        ]
+      }
+    ]
+  },
+  "errors": [
+    {
+      "id": "g001",
+      "text": "I was charged twice for my subscription this month.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g003",
+      "text": "My invoice shows a price higher than what was advertised.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g004",
+      "text": "Why did my card get declined when I tried to pay?",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g005",
+      "text": "Please update the credit card on file for my plan.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g006",
+      "text": "The promo code didn't apply and I paid full price.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g007",
+      "text": "I need a copy of my receipt for my expense report.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g008",
+      "text": "There's a charge from you I don't recognize on my statement.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g009",
+      "text": "How do I switch from monthly to annual billing?",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g010",
+      "text": "You billed me after I cancelled my membership.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g011",
+      "text": "Is sales tax included in the total at checkout?",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g012",
+      "text": "My payment went through but the order still says unpaid.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g013",
+      "text": "Can I split the payment across two cards?",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g014",
+      "text": "I was promised a student discount but it never showed up.",
+      "label": "billing",
+      "predicted": "other"
+    },
+    {
+      "id": "g018",
+      "text": "The page just spins forever and never loads.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g019",
+      "text": "Notifications stopped working after the latest update.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g020",
+      "text": "Video playback stutters on my phone but works on my laptop.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g021",
+      "text": "The export to CSV button does nothing when I click it.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g022",
+      "text": "Sync between my tablet and desktop has been broken since yesterday.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g023",
+      "text": "Search returns no results even for items I know exist.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g024",
+      "text": "I get a blank white screen after logging in on Safari.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g025",
+      "text": "The API is returning timeouts for every request.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g026",
+      "text": "Dark mode makes some of the text unreadable.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g027",
+      "text": "The mobile app won't install on my Android phone.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g028",
+      "text": "My uploaded files show as corrupted when I download them.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g029",
+      "text": "The checkout page freezes when I click the pay button.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g030",
+      "text": "Bluetooth pairing with the device keeps failing.",
+      "label": "technical",
+      "predicted": "other"
+    },
+    {
+      "id": "g032",
+      "text": "How do I change the email address on my profile?",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g033",
+      "text": "Someone else logged into my account from another country.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g034",
+      "text": "Please delete my account and all my data.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g035",
+      "text": "I'm locked out after too many login attempts.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g036",
+      "text": "Can I add a second user to my household account?",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g037",
+      "text": "Two-factor codes aren't being accepted when I sign in.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g038",
+      "text": "I want to change my username.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g039",
+      "text": "My account was suspended and I don't know why.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g040",
+      "text": "How do I merge two accounts I accidentally created?",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g041",
+      "text": "I can't sign in with Google anymore.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g042",
+      "text": "Please update my phone number for verification texts.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g043",
+      "text": "I'd like to download a copy of all my personal data.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g044",
+      "text": "My profile picture keeps reverting to the old one.",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g045",
+      "text": "How do I transfer ownership of the team account to a coworker?",
+      "label": "account",
+      "predicted": "other"
+    },
+    {
+      "id": "g047",
+      "text": "When will my order ship?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g048",
+      "text": "The tracking number you sent doesn't work.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g049",
+      "text": "Can I change the delivery address for an order I just placed?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g050",
+      "text": "The box arrived damaged and the item inside is broken.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g051",
+      "text": "I received the wrong item in my shipment.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g052",
+      "text": "Do you ship to Canada?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g053",
+      "text": "My order has been stuck in transit for two weeks.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g054",
+      "text": "Can I upgrade to overnight delivery?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g055",
+      "text": "Part of my order is missing from the box.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g056",
+      "text": "The courier left my parcel with a neighbor I don't know.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g057",
+      "text": "How much is shipping to Alaska?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g058",
+      "text": "I need to send this item back, how do I get a return label?",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g059",
+      "text": "The delivery window keeps getting pushed back.",
+      "label": "shipping",
+      "predicted": "other"
+    },
+    {
+      "id": "g060",
+      "text": "Can I pick up my order at a store instead of having it delivered?",
+      "label": "shipping",
+      "predicted": "other"
+    }
+  ],
+  "fingerprint": "12930b508f0d16d6"
+}

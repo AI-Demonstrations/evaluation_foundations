@@ -1,0 +1,13 @@
+double-reviewed examples: 20 of 60
+raw agreement:            16/20 = 0.800
+Cohen's kappa:            0.733
+
+disagreements and resolution:
+  g012  reviewer_a=billing   reviewer_b=shipping  final=billing   My payment went through but the order still says unpaid.
+        -> Adjudicated to billing: the customer's problem is the payment status, not delivery.
+  g029  reviewer_a=technical reviewer_b=billing   final=technical The checkout page freezes when I click the pay button.
+        -> Adjudicated to technical: the page freezing is the fault; no charge is disputed.
+  g041  reviewer_a=account   reviewer_b=technical final=account   I can't sign in with Google anymore.
+        -> Adjudicated to account: sign-in method is an account setting; escalate to technical only if SSO is down.
+  g058  reviewer_a=shipping  reviewer_b=billing   final=shipping  I need to send this item back, how do I get a return label?
+        -> Adjudicated to shipping: return labels are issued by the logistics team.

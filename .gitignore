@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+@eaDir/
+.DS_Store
+
+# trained models: regenerate with 02_ml/train.py (pickles, do not share)
+*.joblib

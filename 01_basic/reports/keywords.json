@@ -1,0 +1,147 @@
+{
+  "model": "keyword-router-v1",
+  "n_examples": 60,
+  "label_counts": {
+    "account": 15,
+    "billing": 15,
+    "shipping": 15,
+    "technical": 15
+  },
+  "accuracy": 0.8333,
+  "macro_f1": 0.8404,
+  "per_class": {
+    "account": {
+      "precision": 1.0,
+      "recall": 0.7333,
+      "f1": 0.8462,
+      "support": 15
+    },
+    "billing": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 15
+    },
+    "shipping": {
+      "precision": 0.9231,
+      "recall": 0.8,
+      "f1": 0.8571,
+      "support": 15
+    },
+    "technical": {
+      "precision": 0.625,
+      "recall": 1.0,
+      "f1": 0.7692,
+      "support": 15
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "account",
+      "billing",
+      "shipping",
+      "technical"
+    ],
+    "columns": [
+      "account",
+      "billing",
+      "shipping",
+      "technical"
+    ],
+    "rows_true_cols_pred": [
+      [
+        11,
+        0,
+        0,
+        4
+      ],
+      [
+        0,
+        12,
+        1,
+        2
+      ],
+      [
+        0,
+        0,
+        12,
+        3
+      ],
+      [
+        0,
+        0,
+        0,
+        15
+      ]
+    ]
+  },
+  "contract": {
+    "schema": "TicketRouted v1",
+    "n_messages": 60,
+    "schema_valid_rate": 1.0,
+    "violations": []
+  },
+  "errors": [
+    {
+      "id": "g007",
+      "text": "I need a copy of my receipt for my expense report.",
+      "label": "billing",
+      "predicted": "technical"
+    },
+    {
+      "id": "g010",
+      "text": "You billed me after I cancelled my membership.",
+      "label": "billing",
+      "predicted": "shipping"
+    },
+    {
+      "id": "g011",
+      "text": "Is sales tax included in the total at checkout?",
+      "label": "billing",
+      "predicted": "technical"
+    },
+    {
+      "id": "g037",
+      "text": "Two-factor codes aren't being accepted when I sign in.",
+      "label": "account",
+      "predicted": "technical"
+    },
+    {
+      "id": "g041",
+      "text": "I can't sign in with Google anymore.",
+      "label": "account",
+      "predicted": "technical"
+    },
+    {
+      "id": "g042",
+      "text": "Please update my phone number for verification texts.",
+      "label": "account",
+      "predicted": "technical"
+    },
+    {
+      "id": "g043",
+      "text": "I'd like to download a copy of all my personal data.",
+      "label": "account",
+      "predicted": "technical"
+    },
+    {
+      "id": "g050",
+      "text": "The box arrived damaged and the item inside is broken.",
+      "label": "shipping",
+      "predicted": "technical"
+    },
+    {
+      "id": "g056",
+      "text": "The courier left my parcel with a neighbor I don't know.",
+      "label": "shipping",
+      "predicted": "technical"
+    },
+    {
+      "id": "g058",
+      "text": "I need to send this item back, how do I get a return label?",
+      "label": "shipping",
+      "predicted": "technical"
+    }
+  ],
+  "fingerprint": "7529fdde4b7da91d"
+}

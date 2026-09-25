@@ -1,0 +1,272 @@
+{
+  "model": "tfidf-logreg-router-WEAKENED",
+  "model_meta": {
+    "name": "tfidf-logreg-router-WEAKENED",
+    "seed": 704,
+    "n_train": 12,
+    "train_data_sha": "44521df9c874ef43",
+    "sklearn": "1.6.1"
+  },
+  "n_examples": 60,
+  "seed": 704,
+  "accuracy": 0.6333,
+  "accuracy_ci95": [
+    0.5163,
+    0.75
+  ],
+  "macro_f1": 0.6283,
+  "macro_f1_ci95": [
+    0.5028,
+    0.7447
+  ],
+  "per_class": {
+    "account": {
+      "precision": 0.625,
+      "recall": 0.6667,
+      "f1": 0.6452,
+      "support": 15
+    },
+    "billing": {
+      "precision": 0.7,
+      "recall": 0.4667,
+      "f1": 0.56,
+      "support": 15
+    },
+    "shipping": {
+      "precision": 0.5625,
+      "recall": 0.6,
+      "f1": 0.5806,
+      "support": 15
+    },
+    "technical": {
+      "precision": 0.6667,
+      "recall": 0.8,
+      "f1": 0.7273,
+      "support": 15
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "account",
+      "billing",
+      "shipping",
+      "technical"
+    ],
+    "rows_true_cols_pred": [
+      [
+        10,
+        1,
+        3,
+        1
+      ],
+      [
+        2,
+        7,
+        3,
+        3
+      ],
+      [
+        3,
+        1,
+        9,
+        2
+      ],
+      [
+        1,
+        1,
+        1,
+        12
+      ]
+    ]
+  },
+  "slices": {
+    "channel": {
+      "chat": {
+        "n": 30,
+        "accuracy": 0.6333,
+        "macro_f1": 0.6194
+      },
+      "email": {
+        "n": 30,
+        "accuracy": 0.6333,
+        "macro_f1": 0.633
+      }
+    }
+  },
+  "calibration": {
+    "brier": 0.7458,
+    "ece": 0.3801,
+    "low_confidence_rate": 1.0,
+    "reliability_table": [
+      {
+        "bin": "0.2-0.4",
+        "n": 60,
+        "mean_confidence": 0.2532,
+        "accuracy": 0.6333
+      }
+    ]
+  },
+  "contract": {
+    "schema": "TicketRouted v1",
+    "n_messages": 60,
+    "schema_valid_rate": 1.0,
+    "violations": []
+  },
+  "errors": [
+    {
+      "id": "g003",
+      "text": "My invoice shows a price higher than what was advertised.",
+      "label": "billing",
+      "predicted": "account",
+      "confidence": 0.253
+    },
+    {
+      "id": "g006",
+      "text": "The promo code didn't apply and I paid full price.",
+      "label": "billing",
+      "predicted": "technical",
+      "confidence": 0.254
+    },
+    {
+      "id": "g010",
+      "text": "You billed me after I cancelled my membership.",
+      "label": "billing",
+      "predicted": "shipping",
+      "confidence": 0.252
+    },
+    {
+      "id": "g011",
+      "text": "Is sales tax included in the total at checkout?",
+      "label": "billing",
+      "predicted": "technical",
+      "confidence": 0.253
+    },
+    {
+      "id": "g012",
+      "text": "My payment went through but the order still says unpaid.",
+      "label": "billing",
+      "predicted": "shipping",
+      "confidence": 0.252
+    },
+    {
+      "id": "g013",
+      "text": "Can I split the payment across two cards?",
+      "label": "billing",
+      "predicted": "shipping",
+      "confidence": 0.253
+    },
+    {
+      "id": "g014",
+      "text": "I was promised a student discount but it never showed up.",
+      "label": "billing",
+      "predicted": "technical",
+      "confidence": 0.25
+    },
+    {
+      "id": "g015",
+      "text": "When will the refund actually hit my bank account?",
+      "label": "billing",
+      "predicted": "account",
+      "confidence": 0.252
+    },
+    {
+      "id": "g020",
+      "text": "Video playback stutters on my phone but works on my laptop.",
+      "label": "technical",
+      "predicted": "account",
+      "confidence": 0.253
+    },
+    {
+      "id": "g021",
+      "text": "The export to CSV button does nothing when I click it.",
+      "label": "technical",
+      "predicted": "shipping",
+      "confidence": 0.253
+    },
+    {
+      "id": "g023",
+      "text": "Search returns no results even for items I know exist.",
+      "label": "technical",
+      "predicted": "billing",
+      "confidence": 0.252
+    },
+    {
+      "id": "g031",
+      "text": "I forgot my password and the reset email never arrives.",
+      "label": "account",
+      "predicted": "shipping",
+      "confidence": 0.252
+    },
+    {
+      "id": "g037",
+      "text": "Two-factor codes aren't being accepted when I sign in.",
+      "label": "account",
+      "predicted": "technical",
+      "confidence": 0.252
+    },
+    {
+      "id": "g040",
+      "text": "How do I merge two accounts I accidentally created?",
+      "label": "account",
+      "predicted": "billing",
+      "confidence": 0.253
+    },
+    {
+      "id": "g041",
+      "text": "I can't sign in with Google anymore.",
+      "label": "account",
+      "predicted": "shipping",
+      "confidence": 0.253
+    },
+    {
+      "id": "g044",
+      "text": "My profile picture keeps reverting to the old one.",
+      "label": "account",
+      "predicted": "shipping",
+      "confidence": 0.254
+    },
+    {
+      "id": "g046",
+      "text": "My package says delivered but it's not at my door.",
+      "label": "shipping",
+      "predicted": "account",
+      "confidence": 0.253
+    },
+    {
+      "id": "g047",
+      "text": "When will my order ship?",
+      "label": "shipping",
+      "predicted": "technical",
+      "confidence": 0.251
+    },
+    {
+      "id": "g050",
+      "text": "The box arrived damaged and the item inside is broken.",
+      "label": "shipping",
+      "predicted": "technical",
+      "confidence": 0.256
+    },
+    {
+      "id": "g055",
+      "text": "Part of my order is missing from the box.",
+      "label": "shipping",
+      "predicted": "account",
+      "confidence": 0.253
+    },
+    {
+      "id": "g058",
+      "text": "I need to send this item back, how do I get a return label?",
+      "label": "shipping",
+      "predicted": "billing",
+      "confidence": 0.254
+    },
+    {
+      "id": "g060",
+      "text": "Can I pick up my order at a store instead of having it delivered?",
+      "label": "shipping",
+      "predicted": "account",
+      "confidence": 0.252
+    }
+  ],
+  "fingerprint": "35dc2750afd78003"
+}

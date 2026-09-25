@@ -1,0 +1,6 @@
+model=tfidf-logreg-router-WEAKENED n=60 accuracy=0.6333 macro_f1=0.6283 ci95=[0.5028, 0.7447] ece=0.3801 schema_valid=1.0000 fingerprint=35dc2750afd78003
+  account    P=0.625 R=0.667 F1=0.645
+  billing    P=0.700 R=0.467 F1=0.560
+  shipping   P=0.562 R=0.600 F1=0.581
+  technical  P=0.667 R=0.800 F1=0.727
+report written to reports/router_weakened.md

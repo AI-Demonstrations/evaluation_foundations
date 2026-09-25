@@ -1,0 +1,35 @@
+test_calibration_ceiling (test_regression_ml.TestRegression) ... FAIL
+test_deterministic (test_regression_ml.TestRegression) ... ok
+test_every_class_recall_floor (test_regression_ml.TestRegression) ... FAIL
+test_macro_f1_floor (test_regression_ml.TestRegression) ... FAIL
+test_message_contract (test_regression_ml.TestRegression) ... ok
+
+======================================================================
+FAIL: test_calibration_ceiling (test_regression_ml.TestRegression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/nas916/workspace/Hopkins/704Course/workspace/Evaluation Foundations/02_ml/test_regression_ml.py", line 49, in test_calibration_ceiling
+    self.assertLessEqual(ece, MAX_ECE, f"expected calibration error rose to {ece:.3f} (ceiling {MAX_ECE})")
+AssertionError: 0.3801 not less than or equal to 0.25 : expected calibration error rose to 0.380 (ceiling 0.25)
+
+======================================================================
+FAIL: test_every_class_recall_floor (test_regression_ml.TestRegression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/nas916/workspace/Hopkins/704Course/workspace/Evaluation Foundations/02_ml/test_regression_ml.py", line 44, in test_every_class_recall_floor
+    self.assertFalse(low, f"recall below {MIN_CLASS_RECALL} for: "
+AssertionError: {'account': 0.6667, 'billing': 0.4667, 'shipping': 0.6} is not false : recall below 0.7 for: account=0.667, billing=0.467, shipping=0.600
+
+======================================================================
+FAIL: test_macro_f1_floor (test_regression_ml.TestRegression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/nas916/workspace/Hopkins/704Course/workspace/Evaluation Foundations/02_ml/test_regression_ml.py", line 38, in test_macro_f1_floor
+    self.assertGreaterEqual(
+AssertionError: 0.6283 not greater than or equal to 0.8 : macro F1 dropped to 0.628 (floor 0.8) for model tfidf-logreg-router-WEAKENED
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.331s
+
+FAILED (failures=3)
+weakened model tests exit code: 1 (non-zero expected)

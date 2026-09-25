@@ -1,0 +1,10 @@
+{
+  "name": "keyword-router-v1",
+  "default_label": "technical",
+  "keywords": {
+    "billing": ["charge", "refund", "invoice", "price", "card", "payment", "billing", "discount"],
+    "technical": ["crash", "error", "bug", "broken", "not working", "slow", "update", "install"],
+    "account": ["password", "account", "login", "log in", "username", "profile", "email"],
+    "shipping": ["package", "ship", "shipping", "tracking", "delivery", "delivered", "order"]
+  }
+}

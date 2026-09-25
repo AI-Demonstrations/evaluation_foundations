@@ -1,0 +1,58 @@
+# AsyncAPI description of the ticket router topics — optional illustration, not required by the course.
+# It names each topic, who publishes and who subscribes, and the payload schema.
+# The eval harness validates the router's output against the same schema file
+# (ticket-routed.v1.schema.json), so the contract and the evaluation cannot drift apart.
+asyncapi: 3.0.0
+info:
+  title: Ticket Router
+  version: 1.0.0
+  description: Routes incoming support tickets to a queue-specific worker.
+
+servers:
+  servicebus:
+    host: YOUR-NAMESPACE.servicebus.windows.net
+    protocol: amqp
+    description: Azure Service Bus namespace (topics + subscriptions)
+
+channels:
+  ticketsIncoming:
+    address: tickets.incoming
+    messages:
+      TicketReceived:
+        $ref: '#/components/messages/TicketReceived'
+  ticketsRouted:
+    address: tickets.routed
+    description: One subscription per queue, each filtered on the `queue` property.
+    messages:
+      TicketRouted:
+        $ref: '#/components/messages/TicketRouted'
+
+operations:
+  receiveTicket:           # router consumes new tickets
+    action: receive
+    channel: { $ref: '#/channels/ticketsIncoming' }
+  publishRouted:           # router publishes its decision
+    action: send
+    channel: { $ref: '#/channels/ticketsRouted' }
+  consumeRouted:           # billing/technical/account/shipping workers
+    action: receive
+    channel: { $ref: '#/channels/ticketsRouted' }
+
+components:
+  messages:
+    TicketReceived:
+      contentType: application/json
+      correlationId: { location: '$message.payload#/ticket_id' }
+      payload:
+        type: object
+        required: [ticket_id, text, channel]
+        additionalProperties: false
+        properties:
+          ticket_id: { type: string }
+          text: { type: string, minLength: 1 }
+          channel: { type: string, enum: [email, chat] }
+    TicketRouted:
+      contentType: application/json
+      correlationId: { location: '$message.payload#/ticket_id' }
+      payload:
+        $ref: './ticket-routed.v1.schema.json'

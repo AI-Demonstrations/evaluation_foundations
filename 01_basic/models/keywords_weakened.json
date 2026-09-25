@@ -1,0 +1,19 @@
+{
+  "name": "keyword-router-v1-WEAKENED",
+  "default_label": "other",
+  "keywords": {
+    "billing": [
+      "refund"
+    ],
+    "technical": [
+      "crash",
+      "error"
+    ],
+    "account": [
+      "password"
+    ],
+    "shipping": [
+      "package"
+    ]
+  }
+}
