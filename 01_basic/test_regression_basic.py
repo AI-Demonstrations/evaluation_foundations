@@ -7,11 +7,11 @@ Floors are set a little under the current model's scores (macro F1 0.84), so ord
 edits pass but a real regression does not. Raise them as the model improves.
 """
 
-import json
 import os
 import unittest
 
-from eval_basic import DEFAULT_SCHEMA, KeywordRouter, evaluate, load_dataset
+from eval_basic import KeywordRouter, evaluate, load_dataset
+from message_api import RouterComponent, api_check, load_contract
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL = os.environ.get("EVAL_MODEL", os.path.join(HERE, "models", "keywords.json"))
@@ -19,16 +19,15 @@ DATASET = os.path.join(HERE, "..", "data", "golden.jsonl")
 
 MIN_MACRO_F1 = 0.80
 MIN_CLASS_RECALL = 0.70   # no single queue may be starved
-MIN_SCHEMA_VALID = 1.0    # every published message must honor the topic's contract
+MIN_API_VALID = 1.0       # every message must honor the component's messaging API
 
-with open(DEFAULT_SCHEMA) as f:
-    SCHEMA = json.load(f)
+CONTRACT = load_contract()
 
 
 class TestRegression(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = evaluate(KeywordRouter(MODEL), load_dataset(DATASET), SCHEMA)
+        cls.report = evaluate(KeywordRouter(MODEL), load_dataset(DATASET), CONTRACT)
 
     def test_macro_f1_floor(self):
         f1 = self.report["macro_f1"]
@@ -42,17 +41,42 @@ class TestRegression(unittest.TestCase):
             low, f"recall below {MIN_CLASS_RECALL} for: "
                  + ", ".join(f"{l}={r:.3f}" for l, r in sorted(low.items())))
 
-    def test_message_contract(self):
-        c = self.report["contract"]
-        first = "; ".join(f"{v['ticket_id']}: {v['errors'][0]}" for v in c["violations"][:3])
+    def test_message_api(self):
+        api = self.report["message_api"]
+        failing = {k: v for k, v in api["checks"].items() if v < 1.0}
+        first = "; ".join(f"{v['ticket_id']}: {v['failed'][0]}" for v in api["violations"][:3])
         self.assertGreaterEqual(
-            c["schema_valid_rate"], MIN_SCHEMA_VALID,
-            f"schema-valid rate dropped to {c['schema_valid_rate']:.3f} "
-            f"({len(c['violations'])} of {c['n_messages']} messages break {c['schema']}), e.g. {first}")
+            api["api_valid_rate"], MIN_API_VALID,
+            f"message API valid rate dropped to {api['api_valid_rate']:.3f}; failing checks "
+            f"{failing}; e.g. {first}")
+
+    def test_malformed_input_rejected(self):
+        bad = [r["case"] for r in self.report["message_api"]["robustness"] if not r["rejected"]]
+        self.assertFalse(bad, f"component accepted or crashed on malformed input: {bad}")
 
     def test_deterministic(self):
-        again = evaluate(KeywordRouter(MODEL), load_dataset(DATASET), SCHEMA)
+        again = evaluate(KeywordRouter(MODEL), load_dataset(DATASET), CONTRACT)
         self.assertEqual(self.report, again, "two runs on the same inputs gave different results")
+
+
+class TestApiCheckCatchesComponentBugs(unittest.TestCase):
+    """The model is fine; the message handling is broken. The API check must notice."""
+
+    def test_detects_lost_correlation_and_wrong_routing_property(self):
+        class BuggyComponent(RouterComponent):
+            def handle(self, env):
+                outs, rejected = super().handle(env)
+                for o in outs:
+                    o["correlation_id"] = None                  # forgot to propagate
+                    o["properties"] = {"Queue": o["body"]["queue"]}   # property name typo
+                return outs, rejected
+
+        api = api_check(BuggyComponent(KeywordRouter(os.path.join(HERE, "models", "keywords.json")).route,
+                                       CONTRACT), load_dataset(DATASET), CONTRACT)
+        self.assertEqual(api["checks"]["body_schema"], 1.0, "the bodies themselves are valid")
+        self.assertEqual(api["checks"]["correlation_id"], 0.0)
+        self.assertEqual(api["checks"]["routing_property"], 0.0)
+        self.assertEqual(api["checks"]["delivered_once"], 0.0, "no subscription filter matches 'Queue'")
 
 
 if __name__ == "__main__":

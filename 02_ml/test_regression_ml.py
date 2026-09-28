@@ -7,12 +7,12 @@ Floors sit just under the current model (macro F1 0.85, lowest class recall 0.80
 Train first: python train.py --out models/router.joblib
 """
 
-import json
 import os
 import unittest
 
 from eval_ml import evaluate, load_model
-from eval_basic import DEFAULT_SCHEMA, load_dataset
+from eval_basic import load_dataset
+from message_api import load_contract
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL = os.environ.get("EVAL_MODEL", os.path.join(HERE, "models", "router.joblib"))
@@ -21,17 +21,16 @@ DATASET = os.path.join(HERE, "..", "data", "golden.jsonl")
 MIN_MACRO_F1 = 0.80
 MIN_CLASS_RECALL = 0.70
 MAX_ECE = 0.25            # confidence must stay roughly honest if we route on it
-MIN_SCHEMA_VALID = 1.0    # every published message must honor the topic's contract
+MIN_API_VALID = 1.0       # every message must honor the component's messaging API
 
-with open(DEFAULT_SCHEMA) as f:
-    SCHEMA = json.load(f)
+CONTRACT = load_contract()
 
 
 class TestRegression(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         model, meta = load_model(MODEL)
-        cls.report = evaluate(model, meta, load_dataset(DATASET), SCHEMA)
+        cls.report = evaluate(model, meta, load_dataset(DATASET), CONTRACT)
 
     def test_macro_f1_floor(self):
         f1 = self.report["macro_f1"]
@@ -48,17 +47,22 @@ class TestRegression(unittest.TestCase):
         ece = self.report["calibration"]["ece"]
         self.assertLessEqual(ece, MAX_ECE, f"expected calibration error rose to {ece:.3f} (ceiling {MAX_ECE})")
 
-    def test_message_contract(self):
-        c = self.report["contract"]
-        first = "; ".join(f"{v['ticket_id']}: {v['errors'][0]}" for v in c["violations"][:3])
+    def test_message_api(self):
+        api = self.report["message_api"]
+        failing = {k: v for k, v in api["checks"].items() if v < 1.0}
+        first = "; ".join(f"{v['ticket_id']}: {v['failed'][0]}" for v in api["violations"][:3])
         self.assertGreaterEqual(
-            c["schema_valid_rate"], MIN_SCHEMA_VALID,
-            f"schema-valid rate dropped to {c['schema_valid_rate']:.3f} "
-            f"({len(c['violations'])} of {c['n_messages']} messages break {c['schema']}), e.g. {first}")
+            api["api_valid_rate"], MIN_API_VALID,
+            f"message API valid rate dropped to {api['api_valid_rate']:.3f}; failing checks "
+            f"{failing}; e.g. {first}")
+
+    def test_malformed_input_rejected(self):
+        bad = [r["case"] for r in self.report["message_api"]["robustness"] if not r["rejected"]]
+        self.assertFalse(bad, f"component accepted or crashed on malformed input: {bad}")
 
     def test_deterministic(self):
         model, meta = load_model(MODEL)
-        again = evaluate(model, meta, load_dataset(DATASET), SCHEMA)
+        again = evaluate(model, meta, load_dataset(DATASET), CONTRACT)
         self.assertEqual(self.report, again, "two runs on the same inputs gave different results")
 
 

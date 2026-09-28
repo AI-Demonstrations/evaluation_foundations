@@ -5,10 +5,11 @@ The "model" is a keyword router loaded from a JSON config. The point is the harn
 around it: one command, a model reference and a dataset in, metrics computed from
 first principles, a structured report out, and identical scores on every run.
 
-The harness also checks the router's *output message* — the payload it would publish
-on the tickets.routed topic — against the message schema from the component contract,
-and reports the schema-valid rate. (Delivery over the live topic is tested later, in
-the Module 08 integration tests.)
+The harness also verifies the component's messaging API (message_api.py): it sends
+each golden example as a TicketReceived message on tickets.incoming and checks that the
+component publishes a correct TicketRouted message on tickets.routed that reaches the
+right subscription, and that it rejects malformed input. An in-memory bus stands in for
+Service Bus; delivery over the live topic is tested later, in Module 08.
 
     python eval_basic.py --model models/keywords.json --dataset ../data/golden.jsonl
 """
@@ -19,11 +20,7 @@ import json
 import os
 from collections import Counter
 
-from schema_check import validate
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_SCHEMA = os.path.join(HERE, "..", "data", "schemas", "ticket-routed.v1.schema.json")
-HUMAN_REVIEW_BELOW = 0.5
+from message_api import DEFAULT_CONTRACT, RouterComponent, api_check, api_markdown, load_contract
 
 
 # --------------------------------------------------------------------------- model
@@ -49,24 +46,6 @@ class KeywordRouter:
 
     def predict(self, text):
         return self.route(text)[0]
-
-
-def to_message(row, label, confidence):
-    """The TicketRouted payload the router publishes (see data/schemas/)."""
-    return {"schema_version": "1.0", "ticket_id": row["id"], "queue": label,
-            "confidence": confidence, "needs_human": confidence < HUMAN_REVIEW_BELOW}
-
-
-def contract_check(messages, schema):
-    """Validate every published message; return the schema-valid rate and the violations."""
-    violations = []
-    for m in messages:
-        errs = validate(m, schema)
-        if errs:
-            violations.append({"ticket_id": m.get("ticket_id"), "errors": errs})
-    return {"schema": schema.get("title", ""), "n_messages": len(messages),
-            "schema_valid_rate": round(1 - len(violations) / len(messages), 4),
-            "violations": violations}
 
 
 # --------------------------------------------------------------------------- data
@@ -110,12 +89,11 @@ def per_class_metrics(matrix, labels):
     return out
 
 
-def evaluate(model, rows, schema):
+def evaluate(model, rows, contract):
     labels = sorted({r["label"] for r in rows})
     y_true = [r["label"] for r in rows]
-    routed = [model.route(r["text"]) for r in rows]
-    y_pred = [label for label, _ in routed]
-    contract = contract_check([to_message(r, l, c) for r, (l, c) in zip(rows, routed)], schema)
+    y_pred = [model.route(r["text"])[0] for r in rows]
+    message_api = api_check(RouterComponent(model.route, contract), rows, contract)
     y_pred_cm = [p if p in labels else OFF_CONTRACT for p in y_pred]
     cols = labels + ([OFF_CONTRACT] if OFF_CONTRACT in y_pred_cm else [])
     matrix = confusion_matrix(y_true, y_pred_cm, labels, cols)
@@ -132,14 +110,14 @@ def evaluate(model, rows, schema):
         "macro_f1": round(macro_f1, 4),
         "per_class": per_class,
         "confusion_matrix": {"labels": labels, "columns": cols, "rows_true_cols_pred": matrix},
-        "contract": contract,
+        "message_api": message_api,
         "errors": errors,
     }
 
 
 def scores_fingerprint(report):
     """Hash of the scores only — two runs on the same inputs must print the same value."""
-    scores = {k: report[k] for k in ("accuracy", "macro_f1", "per_class", "confusion_matrix", "contract")}
+    scores = {k: report[k] for k in ("accuracy", "macro_f1", "per_class", "confusion_matrix", "message_api")}
     return hashlib.sha256(json.dumps(scores, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -150,8 +128,9 @@ def to_markdown(report):
              f"- Examples: {report['n_examples']}",
              f"- Accuracy: **{report['accuracy']:.3f}**",
              f"- Macro F1: **{report['macro_f1']:.3f}**",
-             f"- Schema-valid messages: **{report['contract']['schema_valid_rate']:.1%}** "
-             f"({report['contract']['schema']})",
+             f"- Message API: **{report['message_api']['api_valid_rate']:.1%}** of messages pass every check "
+             f"(schema-valid {report['message_api']['schema_valid_rate']:.1%}; "
+             f"malformed inputs rejected {report['message_api']['malformed_rejected_rate']:.1%})",
              f"- Scores fingerprint: `{report['fingerprint']}`", "",
              "## Per class", "", "| Label | Precision | Recall | F1 | Support |", "|---|---|---|---|---|"]
     for l, c in report["per_class"].items():
@@ -161,11 +140,7 @@ def to_markdown(report):
               "|---" * (len(report["confusion_matrix"]["columns"]) + 1) + "|"]
     for l, row in zip(labels, report["confusion_matrix"]["rows_true_cols_pred"]):
         lines.append(f"| **{l}** | " + " | ".join(map(str, row)) + " |")
-    lines += ["", "## Message contract", "",
-              f"{report['contract']['n_messages'] - len(report['contract']['violations'])} of "
-              f"{report['contract']['n_messages']} published messages match the schema.", ""]
-    for v in report["contract"]["violations"][:20]:
-        lines.append(f"- `{v['ticket_id']}`: " + "; ".join(v["errors"]))
+    lines += [""] + api_markdown(report["message_api"])
     lines += ["", f"## Errors ({len(report['errors'])})", "", "| ID | True | Predicted | Text |", "|---|---|---|---|"]
     for e in report["errors"]:
         lines.append(f"| {e['id']} | {e['label']} | {e['predicted']} | {e['text']} |")
@@ -176,13 +151,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True, help="path to a keyword-router JSON config")
     ap.add_argument("--dataset", required=True, help="path to golden JSONL")
-    ap.add_argument("--schema", default=DEFAULT_SCHEMA, help="JSON Schema of the published message")
+    ap.add_argument("--contract", default=DEFAULT_CONTRACT, help="the component's messaging contract (JSON)")
     ap.add_argument("--out", default="reports", help="directory for report.json / report.md")
     args = ap.parse_args()
 
-    with open(args.schema) as f:
-        schema = json.load(f)
-    report = evaluate(KeywordRouter(args.model), load_dataset(args.dataset), schema)
+    report = evaluate(KeywordRouter(args.model), load_dataset(args.dataset), load_contract(args.contract))
     report["fingerprint"] = scores_fingerprint(report)
 
     os.makedirs(args.out, exist_ok=True)
@@ -194,7 +167,8 @@ def main():
 
     print(f"model={report['model']} n={report['n_examples']} "
           f"accuracy={report['accuracy']:.4f} macro_f1={report['macro_f1']:.4f} "
-          f"schema_valid={report['contract']['schema_valid_rate']:.4f} fingerprint={report['fingerprint']}")
+          f"api_valid={report['message_api']['api_valid_rate']:.4f} "
+          f"malformed_rejected={report['message_api']['malformed_rejected_rate']:.4f} fingerprint={report['fingerprint']}")
     for l, c in report["per_class"].items():
         print(f"  {l:10s} P={c['precision']:.3f} R={c['recall']:.3f} F1={c['f1']:.3f}")
     print(f"report written to {args.out}/{stem}.md")

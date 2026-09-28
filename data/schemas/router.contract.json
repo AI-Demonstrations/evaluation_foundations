@@ -1,0 +1,24 @@
+{
+  "component": "router",
+  "description": "The router's messaging API: what it consumes, what it publishes, and how subscribers filter. Mirrors asyncapi.yaml in a form the harness reads directly.",
+  "consumes": {
+    "topic": "tickets.incoming",
+    "schema": "ticket-received.v1.schema.json"
+  },
+  "publishes": {
+    "topic": "tickets.routed",
+    "schema": "ticket-routed.v1.schema.json",
+    "content_type": "application/json",
+    "message_id_field": "ticket_id",
+    "routing_property": "queue",
+    "messages_per_input": 1
+  },
+  "subscriptions": {
+    "tickets.routed": {
+      "billing":   { "queue": "billing" },
+      "technical": { "queue": "technical" },
+      "account":   { "queue": "account" },
+      "shipping":  { "queue": "shipping" }
+    }
+  }
+}

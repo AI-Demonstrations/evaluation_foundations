@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket-received.v1.schema.json",
+  "title": "TicketReceived v1",
+  "description": "Consumed by the router component from topic tickets.incoming.",
+  "type": "object",
+  "required": ["schema_version", "ticket_id", "text", "channel"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "ticket_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "channel": { "type": "string", "enum": ["email", "chat"] }
+  }
+}

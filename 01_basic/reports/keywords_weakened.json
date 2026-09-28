@@ -80,333 +80,439 @@
       ]
     ]
   },
-  "contract": {
-    "schema": "TicketRouted v1",
+  "message_api": {
+    "contract": "router",
+    "consumes": "tickets.incoming",
+    "publishes": "tickets.routed",
     "n_messages": 60,
+    "api_valid_rate": 0.1,
     "schema_valid_rate": 0.1,
+    "checks": {
+      "input_valid": 1.0,
+      "one_message": 1.0,
+      "topic": 1.0,
+      "body_schema": 0.1,
+      "content_type": 1.0,
+      "message_id": 1.0,
+      "correlation_id": 1.0,
+      "routing_property": 1.0,
+      "delivered_once": 0.1
+    },
+    "malformed_rejected_rate": 1.0,
+    "robustness": [
+      {
+        "case": "missing_text",
+        "rejected": true,
+        "detail": "invalid input: $: missing required field 'text'"
+      },
+      {
+        "case": "text_not_string",
+        "rejected": true,
+        "detail": "invalid input: $.text: expected string, got int"
+      },
+      {
+        "case": "empty_text",
+        "rejected": true,
+        "detail": "invalid input: $.text: shorter than 1"
+      },
+      {
+        "case": "unknown_channel",
+        "rejected": true,
+        "detail": "invalid input: $.channel: 'fax' not one of ['email', 'chat']"
+      },
+      {
+        "case": "unexpected_field",
+        "rejected": true,
+        "detail": "invalid input: $: unexpected field 'priority'"
+      },
+      {
+        "case": "wrong_version",
+        "rejected": true,
+        "detail": "invalid input: $.schema_version: must equal '1.0', got '2.0'"
+      },
+      {
+        "case": "not_an_object",
+        "rejected": true,
+        "detail": "invalid input: $: expected object, got str"
+      }
+    ],
     "violations": [
       {
         "ticket_id": "g001",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g003",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g004",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g005",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g006",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g007",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g008",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g009",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g010",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g011",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g012",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g013",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g014",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g018",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g019",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g020",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g021",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g022",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g023",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g024",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g025",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g026",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g027",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g028",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g029",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g030",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g032",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g033",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g034",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g035",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g036",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g037",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g038",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g039",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g040",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g041",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g042",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g043",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g044",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g045",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g047",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g048",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g049",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g050",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g051",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g052",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g053",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g054",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g055",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g056",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g057",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g058",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g059",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       },
       {
         "ticket_id": "g060",
-        "errors": [
-          "$.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']"
+        "failed": [
+          "body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']",
+          "delivered_once: delivered to no subscription"
         ]
       }
     ]
@@ -737,5 +843,5 @@
       "predicted": "other"
     }
   ],
-  "fingerprint": "12930b508f0d16d6"
+  "fingerprint": "81586204874e91de"
 }

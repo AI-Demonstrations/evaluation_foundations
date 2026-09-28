@@ -2,10 +2,11 @@ test_calibration_ceiling (test_regression_ml.TestRegression) ... ok
 test_deterministic (test_regression_ml.TestRegression) ... ok
 test_every_class_recall_floor (test_regression_ml.TestRegression) ... ok
 test_macro_f1_floor (test_regression_ml.TestRegression) ... ok
-test_message_contract (test_regression_ml.TestRegression) ... ok
+test_malformed_input_rejected (test_regression_ml.TestRegression) ... ok
+test_message_api (test_regression_ml.TestRegression) ... ok
 
 ----------------------------------------------------------------------
-Ran 5 tests in 3.479s
+Ran 6 tests in 3.106s
 
 OK
 real model tests exit code: 0

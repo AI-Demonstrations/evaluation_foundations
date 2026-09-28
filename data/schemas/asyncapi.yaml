@@ -1,7 +1,8 @@
 # AsyncAPI description of the ticket router topics — optional illustration, not required by the course.
 # It names each topic, who publishes and who subscribes, and the payload schema.
-# The eval harness validates the router's output against the same schema file
-# (ticket-routed.v1.schema.json), so the contract and the evaluation cannot drift apart.
+# Both payloads live in their own schema files, and router.contract.json restates the
+# topics and subscription filters in plain JSON; the eval harness reads those files, so
+# the contract and the evaluation cannot drift apart.
 asyncapi: 3.0.0
 info:
   title: Ticket Router
@@ -44,13 +45,7 @@ components:
       contentType: application/json
       correlationId: { location: '$message.payload#/ticket_id' }
       payload:
-        type: object
-        required: [ticket_id, text, channel]
-        additionalProperties: false
-        properties:
-          ticket_id: { type: string }
-          text: { type: string, minLength: 1 }
-          channel: { type: string, enum: [email, chat] }
+        $ref: './ticket-received.v1.schema.json'
     TicketRouted:
       contentType: application/json
       correlationId: { location: '$message.payload#/ticket_id' }

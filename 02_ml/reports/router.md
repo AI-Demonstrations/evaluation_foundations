@@ -4,8 +4,8 @@
 - Accuracy: **0.850** (95% CI 0.750–0.933)
 - Macro F1: **0.854** (95% CI 0.752–0.934)
 - Calibration: Brier 0.288 · ECE 0.182 · 28% of predictions below 0.5 confidence
-- Schema-valid messages: **100.0%** (TicketRouted v1)
-- Scores fingerprint: `aa0fa23474651ed2`
+- Message API: **100.0%** of messages pass every check (malformed inputs rejected 100.0%)
+- Scores fingerprint: `83e1dea0e10b7dd4`
 
 ## Per class
 
@@ -41,10 +41,31 @@
 | 0.6-0.8 | 14 | 0.708 | 0.929 |
 | 0.8-1.0 | 20 | 0.903 | 1.000 |
 
-## Message contract
+## Message API
 
-60 of 60 published messages match the schema.
+Consumes `tickets.incoming`, publishes `tickets.routed`. 60 of 60 golden messages pass every check; 7 of 7 malformed inputs rejected.
 
+| Check | Pass rate |
+|---|---|
+| input_valid | 100.0% |
+| one_message | 100.0% |
+| topic | 100.0% |
+| body_schema | 100.0% |
+| content_type | 100.0% |
+| message_id | 100.0% |
+| correlation_id | 100.0% |
+| routing_property | 100.0% |
+| delivered_once | 100.0% |
+
+| Malformed input | Rejected | Detail |
+|---|---|---|
+| missing_text | yes | invalid input: $: missing required field 'text' |
+| text_not_string | yes | invalid input: $.text: expected string, got int |
+| empty_text | yes | invalid input: $.text: shorter than 1 |
+| unknown_channel | yes | invalid input: $.channel: 'fax' not one of ['email', 'chat'] |
+| unexpected_field | yes | invalid input: $: unexpected field 'priority' |
+| wrong_version | yes | invalid input: $.schema_version: must equal '1.0', got '2.0' |
+| not_an_object | yes | invalid input: $: expected object, got str |
 
 ## Errors (9)
 

@@ -21,7 +21,7 @@ and golden set. The two examples play those two roles:
 | Dependencies | Python standard library only | numpy, scikit-learn |
 | Metrics | Accuracy, per-class P/R/F1, confusion matrix — computed by hand | Same via scikit-learn, **plus** bootstrap 95% CIs, per-slice metrics, calibration (Brier, ECE) |
 | Weakened model | `models/keywords_weakened.json` | `train.py --weaken` |
-| Message contract | Every published message validated against `data/schemas/` | Same check, shared code |
+| Messaging API | Driven through its topics: 9 checks per message, 7 malformed inputs (`message_api.py`) | Same check, shared code |
 | Extra | — | Reviewer agreement (Cohen's kappa), evidence script |
 
 ## Quick start
@@ -55,17 +55,17 @@ unchanged if you prefer it to `unittest`.
 | Regression test fails on a weakened model and says what dropped | `test_regression_*.py`; `02_ml/logs/test_real_model.log` and `test_weakened_model.log` |
 | Golden dataset: curated, provenance, human review, agreement on ≥ 20 | `data/golden.jsonl`, `data/PROVENANCE.md`, `02_ml/review_agreement.py` |
 | Classification metrics: precision, recall, F1, confusion matrix | Both reports |
-| Output conforms to the component's message contract | Schema-valid rate in both reports; `test_message_contract` |
+| The component's messaging API is correct (topics, schemas, routing, rejection of bad input) | "Message API" section of both reports; `test_message_api`, `test_malformed_input_rejected` |
 | README defines each metric and what good and bad look like | Below |
 
 ## Results on the golden set
 
 | Model | Accuracy | Macro F1 | Notes |
 |---|---|---|---|
-| Keyword rules | 0.833 | 0.840 | 100% schema-valid. High precision, but anything without a keyword falls through to `technical` (P = 0.63) |
-| Keyword rules, weakened | 0.100 | 0.180 | Falls back to queue `other`, which is not in the contract: 10% schema-valid. Test fails on F1, recall and contract |
-| TF-IDF + LogReg | 0.850 | 0.854 (95% CI 0.75–0.93) | 100% schema-valid. Errors spread across classes; under-confident (ECE 0.18) |
-| TF-IDF + LogReg, weakened | 0.633 | 0.628 | Still schema-valid, so contract passes; test fails on F1, recall and calibration |
+| Keyword rules | 0.833 | 0.840 | 100% API-valid. High precision, but anything without a keyword falls through to `technical` (P = 0.63) |
+| Keyword rules, weakened | 0.100 | 0.180 | Falls back to queue `other`, which is not in the contract: 10% API-valid, and those messages reach no subscription. Test fails on F1, recall and the message API |
+| TF-IDF + LogReg | 0.850 | 0.854 (95% CI 0.75–0.93) | 100% API-valid. Errors spread across classes; under-confident (ECE 0.18) |
+| TF-IDF + LogReg, weakened | 0.633 | 0.628 | Still 100% API-valid, so the API tests pass; test fails on F1, recall and calibration |
 
 **The lesson in these numbers:** the ML model "wins" by 0.014 F1, well inside its
 confidence interval. On 60 examples, you *cannot* claim it is better. Either grow the golden
@@ -77,32 +77,62 @@ score 0.84. Rules (or prompts, or
 hyperparameters) tuned on the evaluation set measure memory, not skill. Tune on something
 else; touch the golden set only to evaluate.
 
-## The message contract (topics)
+## The messaging API (topics)
 
-The router is one component in a pub/sub system: it consumes `tickets.incoming` and
-publishes a `TicketRouted` message on the `tickets.routed` topic, where each queue's worker
-has a filtered subscription. The message payload is defined in
-`data/schemas/ticket-routed.v1.schema.json`, the kind of JSON Schema file Module 02 asks
-each team to commit for its interfaces. The harness reads that **same** file, so the
-contract and the evaluation cannot drift apart.
+The router is one component in a pub/sub system, and its API **is** its messaging contract:
 
-`data/schemas/asyncapi.yaml` is optional, extra reading. It shows how the topic layout
-(topics, publishers, subscribers) can be described alongside the JSON Schema, using AsyncAPI,
-the pub/sub counterpart of OpenAPI. The harness does not need it.
+| | Topic | Message | Schema |
+|---|---|---|---|
+| Consumes | `tickets.incoming` | `TicketReceived` | `data/schemas/ticket-received.v1.schema.json` |
+| Publishes | `tickets.routed` | `TicketRouted`, with the routing property `queue`, `message_id` = `ticket_id`, and the input's id as `correlation_id` | `data/schemas/ticket-routed.v1.schema.json` |
+| Subscriptions on `tickets.routed` | `billing`, `technical`, `account`, `shipping` | each filters on `queue = '<name>'` | `data/schemas/router.contract.json` |
 
-**What the harness checks (Module 05, offline).** For every golden example it builds the
-exact message the router would publish, validates it against the schema, and reports the
-**schema-valid rate** and each violation. This belongs in the evaluation because it is a
-property of the *model's output*. A rule set can fall back to a queue that doesn't exist, and
-an LLM will sometimes return malformed JSON, a missing field or an invented label, at a rate
-that only a dataset can measure. It also matters for Module 07, since candidate models differ
-in how reliably they hold a format.
+`data/schemas/router.contract.json` states the whole API in plain JSON, and the harness reads
+it together with the two schema files, the kind of JSON Schema files Module 02 asks each team
+to commit for its interfaces. `data/schemas/asyncapi.yaml` is optional, extra reading: the same
+API in AsyncAPI, the pub/sub counterpart of OpenAPI. The harness does not need it.
 
-**What the harness does not check (Modules 08–09).** It never touches a live topic. Whether
-messages are *delivered* belongs in the Module 08 integration tests and the Module 09
-deployed stack, not in a deterministic offline harness. Those checks are that every
-subscription receives the message, filters route correctly, malformed messages dead-letter
-instead of crashing a consumer, redelivery is idempotent, and correlation IDs survive the hop.
+**How the harness tests the API (`01_basic/message_api.py`).** The harness never calls the
+model directly for this check. It wraps the model in `RouterComponent`, the message handler
+that runs in production, and drives it the way the system will:
+
+1. Each golden example is sent **as a `TicketReceived` message** on `tickets.incoming`.
+2. Whatever the component publishes goes onto an **in-memory bus** with the same topics and
+   subscription filters as Service Bus, so the check is offline and repeatable.
+3. Nine checks run on every message:
+
+   | Check | Passes when |
+   |---|---|
+   | `input_valid` | The message sent is a valid `TicketReceived` (catches a bad golden example) |
+   | `one_message` | The component publishes exactly one message |
+   | `topic` | It publishes on `tickets.routed` |
+   | `body_schema` | The body validates against `TicketRouted` |
+   | `content_type` | It is declared `application/json` |
+   | `message_id` | `message_id` equals the body's `ticket_id`, so broker duplicate detection works |
+   | `correlation_id` | It carries the input message's id, so a request can be traced across components |
+   | `routing_property` | The `queue` property matches the body's `queue`; subscribers filter on it |
+   | `delivered_once` | The bus delivers it to exactly one subscription, the right one |
+
+4. Seven **malformed input messages** are sent: missing text, wrong types, empty text, an
+   unknown channel, an unexpected field, a wrong schema version, and a body that isn't an
+   object. The component must reject every one, without publishing and without crashing.
+   In production, a rejected message is dead-lettered.
+
+The report gives the **API-valid rate** (messages passing all nine checks), the pass rate of
+each check, every violation, and the malformed-input results. The regression tests require
+100% on both. `TestApiCheckCatchesComponentBugs` shows why the checks go beyond the body
+schema: a component whose model is fine but that drops the correlation id and misspells
+the routing property publishes valid bodies, and **no subscriber ever receives them**.
+
+This belongs in the evaluation for two reasons. The *model* can break the API: the weakened
+keyword model falls back to a queue called `other`, so 90% of its messages fail the schema
+and reach no subscription. And candidate models in Module 07 differ in how reliably they
+hold a format, especially LLMs, which can return malformed JSON or invent labels.
+
+**What stays for Modules 08–09.** The in-memory bus checks the contract, not the broker. Real
+Service Bus delivery, dead-letter queues, retries and redelivery, authentication, and
+network paths are tested against live infrastructure in the Module 08 integration tests and
+the Module 09 deployed stack.
 
 `01_basic/schema_check.py` is a small standard-library validator covering the keywords a
 message contract usually needs. For full JSON Schema support, `pip install jsonschema` and
@@ -130,11 +160,16 @@ swap it in.
   ECE 0.05 means confidence is honest to within 5 points; ECE 0.18 (this model) means it
   is right far more often than it claims. That matters if you route low-confidence tickets
   to a human: the threshold you pick will be wrong unless calibration is good.
-- **Schema-valid rate (message contract)** — the share of published messages that pass the
-  topic's payload schema. The target is **1.0**: a single invalid message is dead-lettered
-  or, worse, crashes a subscriber. Anything below 1.0 fails the regression test, and the
-  report lists which tickets broke which rule. For an LLM component, expect this to be the
-  first metric that moves when you change the prompt or the model.
+- **API-valid rate (messaging API)** — the share of golden messages for which the component's
+  published message passes all nine API checks. The target is **1.0**: one bad message is
+  dead-lettered, or, if its routing property is wrong, silently reaches no worker at all.
+  The per-check pass rates tell you *what* broke: `body_schema` points at the model's output,
+  while `correlation_id`, `routing_property` or `delivered_once` alone point at the message
+  handling code. For an LLM component, `body_schema` is usually the first to move when you
+  change the prompt or the model.
+- **Malformed-input rejection rate** — the share of deliberately bad input messages the
+  component rejects cleanly. The target is **1.0**. Anything less means a bad message on the
+  topic can crash the component or be routed as if it were valid.
 - **Cohen's kappa (reviewer agreement)** — agreement between two labelers corrected for
   chance. ≥ 0.8 strong, 0.6–0.8 substantial (this set: 0.73), < 0.6 means the rubric is
   ambiguous. The same measure is how you **calibrate an LLM judge**: score the judge's labels
@@ -152,9 +187,11 @@ swap it in.
    candidate plugs in without code changes. Keep the `evaluate()` → report contract.
 4. For generative output, add an LLM-as-judge metric, and use `review_agreement.py --a judge
    --b human` to report its agreement with human labels.
-5. Point `--schema` at the message schema in your Module 02 contract (the JSON Schema file,
-   or the schema extracted from your OpenAPI file), and build each output into the exact
-   message your component publishes before validating it.
+5. Describe your component's messaging API in a contract file like `router.contract.json`:
+   the topic it consumes and its schema, the topic it publishes and its schema, the routing
+   property, and the subscription filters. Use the JSON Schema files from your Module 02
+   contract. Wrap your model in a message handler like `RouterComponent` and pass the file
+   with `--contract`.
 6. Set the regression floors just under your current scores, and commit the logs.
 
 > The golden-set tickets were generated with Claude (claude-opus-5-5) and the reviewer

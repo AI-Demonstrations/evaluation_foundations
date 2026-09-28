@@ -3,8 +3,8 @@
 - Examples: 60
 - Accuracy: **0.100**
 - Macro F1: **0.180**
-- Schema-valid messages: **10.0%** (TicketRouted v1)
-- Scores fingerprint: `12930b508f0d16d6`
+- Message API: **10.0%** of messages pass every check (schema-valid 10.0%; malformed inputs rejected 100.0%)
+- Scores fingerprint: `81586204874e91de`
 
 ## Per class
 
@@ -24,30 +24,54 @@
 | **shipping** | 0 | 0 | 1 | 0 | 14 |
 | **technical** | 0 | 0 | 0 | 2 | 13 |
 
-## Message contract
+## Message API
 
-6 of 60 published messages match the schema.
+Consumes `tickets.incoming`, publishes `tickets.routed`. 6 of 60 golden messages pass every check; 7 of 7 malformed inputs rejected.
 
-- `g001`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g003`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g004`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g005`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g006`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g007`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g008`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g009`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g010`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g011`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g012`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g013`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g014`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g018`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g019`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g020`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g021`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g022`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g023`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
-- `g024`: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']
+| Check | Pass rate |
+|---|---|
+| input_valid | 100.0% |
+| one_message | 100.0% |
+| topic | 100.0% |
+| body_schema | 10.0% |
+| content_type | 100.0% |
+| message_id | 100.0% |
+| correlation_id | 100.0% |
+| routing_property | 100.0% |
+| delivered_once | 10.0% |
+
+| Malformed input | Rejected | Detail |
+|---|---|---|
+| missing_text | yes | invalid input: $: missing required field 'text' |
+| text_not_string | yes | invalid input: $.text: expected string, got int |
+| empty_text | yes | invalid input: $.text: shorter than 1 |
+| unknown_channel | yes | invalid input: $.channel: 'fax' not one of ['email', 'chat'] |
+| unexpected_field | yes | invalid input: $: unexpected field 'priority' |
+| wrong_version | yes | invalid input: $.schema_version: must equal '1.0', got '2.0' |
+| not_an_object | yes | invalid input: $: expected object, got str |
+
+Violations (54; first 20):
+
+- `g001`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g003`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g004`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g005`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g006`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g007`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g008`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g009`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g010`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g011`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g012`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g013`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g014`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g018`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g019`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g020`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g021`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g022`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g023`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
+- `g024`: body_schema: $.queue: 'other' not one of ['billing', 'technical', 'account', 'shipping']; delivered_once: delivered to no subscription
 
 ## Errors (54)
 

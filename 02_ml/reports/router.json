@@ -124,10 +124,62 @@
       }
     ]
   },
-  "contract": {
-    "schema": "TicketRouted v1",
+  "message_api": {
+    "contract": "router",
+    "consumes": "tickets.incoming",
+    "publishes": "tickets.routed",
     "n_messages": 60,
+    "api_valid_rate": 1.0,
     "schema_valid_rate": 1.0,
+    "checks": {
+      "input_valid": 1.0,
+      "one_message": 1.0,
+      "topic": 1.0,
+      "body_schema": 1.0,
+      "content_type": 1.0,
+      "message_id": 1.0,
+      "correlation_id": 1.0,
+      "routing_property": 1.0,
+      "delivered_once": 1.0
+    },
+    "malformed_rejected_rate": 1.0,
+    "robustness": [
+      {
+        "case": "missing_text",
+        "rejected": true,
+        "detail": "invalid input: $: missing required field 'text'"
+      },
+      {
+        "case": "text_not_string",
+        "rejected": true,
+        "detail": "invalid input: $.text: expected string, got int"
+      },
+      {
+        "case": "empty_text",
+        "rejected": true,
+        "detail": "invalid input: $.text: shorter than 1"
+      },
+      {
+        "case": "unknown_channel",
+        "rejected": true,
+        "detail": "invalid input: $.channel: 'fax' not one of ['email', 'chat']"
+      },
+      {
+        "case": "unexpected_field",
+        "rejected": true,
+        "detail": "invalid input: $: unexpected field 'priority'"
+      },
+      {
+        "case": "wrong_version",
+        "rejected": true,
+        "detail": "invalid input: $.schema_version: must equal '1.0', got '2.0'"
+      },
+      {
+        "case": "not_an_object",
+        "rejected": true,
+        "detail": "invalid input: $: expected object, got str"
+      }
+    ],
     "violations": []
   },
   "errors": [
@@ -195,5 +247,5 @@
       "confidence": 0.476
     }
   ],
-  "fingerprint": "aa0fa23474651ed2"
+  "fingerprint": "83e1dea0e10b7dd4"
 }

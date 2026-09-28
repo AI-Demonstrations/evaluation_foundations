@@ -9,8 +9,9 @@ Adds to the basic harness:
   * per-slice metrics (by `channel`) — an average can hide a slice that fails
   * probability calibration (Brier score, expected calibration error) — is the
     model's confidence trustworthy enough to route on, or to escalate when low?
-  * message contract — every TicketRouted payload the router would publish on the
-    tickets.routed topic is validated against the schema (same check as the basic harness)
+  * message API — the model is wrapped in the same RouterComponent as the basic harness
+    and driven through its topics (message_api.py): published messages, routing and
+    delivery, and rejection of malformed input are all checked
 All randomness is seeded, so two runs give identical scores and fingerprints.
 """
 
@@ -26,7 +27,8 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_recall_fscore_support)
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "01_basic"))
-from eval_basic import DEFAULT_SCHEMA, contract_check, load_dataset, to_message  # noqa: E402
+from eval_basic import load_dataset  # noqa: E402
+from message_api import DEFAULT_CONTRACT, RouterComponent, api_check, api_markdown, load_contract  # noqa: E402
 
 SEED = 704
 N_BOOT = 1000
@@ -68,7 +70,18 @@ def calibration(y_true, proba, classes, n_bins=5):
             "reliability_table": table}
 
 
-def evaluate(model, meta, rows, schema):
+def route_fn(model):
+    """Adapt the sklearn pipeline to the component's route(text) -> (label, confidence)."""
+    classes = list(model.classes_)
+
+    def route(text):
+        proba = model.predict_proba([text])[0]
+        i = int(np.argmax(proba))
+        return str(classes[i]), round(float(proba[i]), 4)
+    return route
+
+
+def evaluate(model, meta, rows, contract):
     rng = np.random.default_rng(SEED)
     texts = [r["text"] for r in rows]
     y_true = np.array([r["label"] for r in rows])
@@ -87,8 +100,7 @@ def evaluate(model, meta, rows, schema):
                       "macro_f1": round(float(macro_f1(y_true[m], y_pred[m])), 4)}
 
     conf = proba.max(axis=1)
-    contract = contract_check([to_message(row, str(p), round(float(c), 4))
-                               for row, p, c in zip(rows, y_pred, conf)], schema)
+    message_api = api_check(RouterComponent(route_fn(model), contract), rows, contract)
     errors = [{"id": row["id"], "text": row["text"], "label": t, "predicted": pr, "confidence": round(float(c), 3)}
               for row, t, pr, c in zip(rows, y_true, y_pred, conf) if t != pr]
 
@@ -104,7 +116,7 @@ def evaluate(model, meta, rows, schema):
                              "rows_true_cols_pred": confusion_matrix(y_true, y_pred, labels=labels).tolist()},
         "slices": {"channel": slices},
         "calibration": calibration(y_true, proba, classes),
-        "contract": contract,
+        "message_api": message_api,
         "errors": errors,
     }
 
@@ -124,7 +136,8 @@ def to_markdown(rep):
          f"- Macro F1: **{rep['macro_f1']:.3f}** (95% CI {rep['macro_f1_ci95'][0]:.3f}–{rep['macro_f1_ci95'][1]:.3f})",
          f"- Calibration: Brier {cal['brier']:.3f} · ECE {cal['ece']:.3f} · "
          f"{cal['low_confidence_rate']:.0%} of predictions below {LOW_CONFIDENCE} confidence",
-         f"- Schema-valid messages: **{rep['contract']['schema_valid_rate']:.1%}** ({rep['contract']['schema']})",
+         f"- Message API: **{rep['message_api']['api_valid_rate']:.1%}** of messages pass every check "
+         f"(malformed inputs rejected {rep['message_api']['malformed_rejected_rate']:.1%})",
          f"- Scores fingerprint: `{rep['fingerprint']}`", "",
          "## Per class", "", "| Label | Precision | Recall | F1 | Support |", "|---|---|---|---|---|"]
     L += [f"| {l} | {c['precision']:.3f} | {c['recall']:.3f} | {c['f1']:.3f} | {c['support']} |"
@@ -138,10 +151,7 @@ def to_markdown(rep):
     L += ["", "## Reliability (is confidence honest?)", "", "| Confidence bin | N | Mean confidence | Accuracy |",
           "|---|---|---|---|"]
     L += [f"| {b['bin']} | {b['n']} | {b['mean_confidence']:.3f} | {b['accuracy']:.3f} |" for b in cal["reliability_table"]]
-    c = rep["contract"]
-    L += ["", "## Message contract", "",
-          f"{c['n_messages'] - len(c['violations'])} of {c['n_messages']} published messages match the schema.", ""]
-    L += [f"- `{v['ticket_id']}`: " + "; ".join(v["errors"]) for v in c["violations"][:20]]
+    L += [""] + api_markdown(rep["message_api"])
     L += ["", f"## Errors ({len(rep['errors'])})", "", "| ID | True | Predicted | Confidence | Text |", "|---|---|---|---|---|"]
     L += [f"| {e['id']} | {e['label']} | {e['predicted']} | {e['confidence']:.2f} | {e['text']} |" for e in rep["errors"]]
     return "\n".join(L) + "\n"
@@ -151,14 +161,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True, help="path to a trained .joblib bundle")
     ap.add_argument("--dataset", required=True, help="path to golden JSONL")
-    ap.add_argument("--schema", default=DEFAULT_SCHEMA, help="JSON Schema of the published message")
+    ap.add_argument("--contract", default=DEFAULT_CONTRACT, help="the component's messaging contract (JSON)")
     ap.add_argument("--out", default="reports")
     args = ap.parse_args()
 
     model, meta = load_model(args.model)
-    with open(args.schema) as f:
-        schema = json.load(f)
-    rep = evaluate(model, meta, load_dataset(args.dataset), schema)
+    rep = evaluate(model, meta, load_dataset(args.dataset), load_contract(args.contract))
     rep["fingerprint"] = fingerprint(rep)
 
     os.makedirs(args.out, exist_ok=True)
@@ -170,7 +178,7 @@ def main():
 
     print(f"model={rep['model']} n={rep['n_examples']} accuracy={rep['accuracy']:.4f} "
           f"macro_f1={rep['macro_f1']:.4f} ci95={rep['macro_f1_ci95']} "
-          f"ece={rep['calibration']['ece']:.4f} schema_valid={rep['contract']['schema_valid_rate']:.4f} fingerprint={rep['fingerprint']}")
+          f"ece={rep['calibration']['ece']:.4f} api_valid={rep['message_api']['api_valid_rate']:.4f} fingerprint={rep['fingerprint']}")
     for l, c in rep["per_class"].items():
         print(f"  {l:10s} P={c['precision']:.3f} R={c['recall']:.3f} F1={c['f1']:.3f}")
     print(f"report written to {args.out}/{stem}.md")
