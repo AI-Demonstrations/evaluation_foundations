@@ -45,6 +45,92 @@ python eval_ml.py --model models/router.joblib --dataset ../data/golden.jsonl
 Tested on Python 3.9 with scikit-learn 1.6 and numpy 2.0. `pytest` runs the tests
 unchanged if you prefer it to `unittest`.
 
+## Running the regression tests (`unittest`)
+
+The regression tests use `unittest`, Python's built-in test framework, so they need nothing
+beyond the standard library. It works like this:
+
+1. A test file contains classes that subclass `unittest.TestCase`.
+2. Every method whose name starts with `test_` is one test. The runner finds and runs them all.
+3. `setUpClass` runs once before a class's tests. Here it runs the full evaluation once and
+   stores the result in `cls.report`, so every test checks the same report.
+4. Each `self.assert…(value, floor, message)` is one check. When it fails, the test is marked
+   `FAIL` and the message says what dropped, e.g. `macro F1 dropped to 0.180 (floor 0.8)`.
+5. The run exits with code 0 if every test passed and 1 otherwise. CI uses that exit code as
+   the pass/fail gate.
+
+**Command syntax.** Run from inside `01_basic/` or `02_ml/`, since the tests find the dataset
+and contract by relative path (`../data/...`):
+
+```bash
+python -m unittest -v <module>[.<Class>[.<test_method>]] [more names ...]
+```
+
+| Part | Meaning |
+|---|---|
+| `python -m unittest` | Starts the `unittest` test runner (`-m` runs a module as a script) |
+| `-v` | Verbose: prints each test's name and `ok` / `FAIL` / `ERROR` instead of dots |
+| `<module>` | The test file without `.py`, e.g. `test_regression_basic` |
+| `.<Class>` | Optional: only the tests in one class, e.g. `.TestRegression` |
+| `.<test_method>` | Optional: one test, e.g. `.test_message_api` |
+
+With no name, `python -m unittest` discovers every `test*.py` file in the current directory.
+
+**The tests in each example.**
+
+| Test | `01_basic` | `02_ml` | Fails when |
+|---|:-:|:-:|---|
+| `TestRegression.test_macro_f1_floor` | ✓ | ✓ | Macro F1 falls below the floor (0.80) |
+| `TestRegression.test_every_class_recall_floor` | ✓ | ✓ | Any single queue's recall falls below 0.70 |
+| `TestRegression.test_calibration_ceiling` | | ✓ | ECE rises above 0.25 |
+| `TestRegression.test_message_api` | ✓ | ✓ | Any golden message fails one of the nine API checks |
+| `TestRegression.test_malformed_input_rejected` | ✓ | ✓ | Any malformed input is published or crashes the component |
+| `TestRegression.test_deterministic` | ✓ | ✓ | Two runs on the same inputs give different reports |
+| `TestApiCheckCatchesComponentBugs` | ✓ | | The API check misses a deliberately buggy message handler |
+
+**Examples — `01_basic/`:**
+
+```bash
+cd 01_basic
+
+# Every test
+python -m unittest -v test_regression_basic
+
+# One class
+python -m unittest -v test_regression_basic.TestRegression
+
+# Only the messaging API checks
+python -m unittest -v \
+  test_regression_basic.TestRegression.test_message_api \
+  test_regression_basic.TestRegression.test_malformed_input_rejected \
+  test_regression_basic.TestApiCheckCatchesComponentBugs
+
+# Against the weakened model: must FAIL (F1, recall and message API)
+EVAL_MODEL=models/keywords_weakened.json python -m unittest -v test_regression_basic
+```
+
+**Examples — `02_ml/`** (train both models first):
+
+```bash
+cd 02_ml
+python train.py --out models/router.joblib
+python train.py --out models/router_weakened.joblib --weaken
+
+# Every test
+python -m unittest -v test_regression_ml
+
+# One test
+python -m unittest -v test_regression_ml.TestRegression.test_calibration_ceiling
+
+# Against the weakened model: must FAIL (F1, recall and calibration; the API tests still pass)
+EVAL_MODEL=models/router_weakened.joblib python -m unittest -v test_regression_ml
+```
+
+`EVAL_MODEL` is an environment variable the test files read to choose the model; without it
+they test the real model. Running the weakened model is how you show the tests actually catch
+a regression and do not pass regardless of what they are given. `run_evidence.sh` runs both
+cases and saves the output in `02_ml/logs/`.
+
 ## How the examples map to the deliverable
 
 | Deliverable requirement | Where it is shown |
