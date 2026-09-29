@@ -6,7 +6,7 @@ test_malformed_input_rejected (test_regression_ml.TestRegression) ... ok
 test_message_api (test_regression_ml.TestRegression) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 3.106s
+Ran 6 tests in 3.098s
 
 OK
 real model tests exit code: 0

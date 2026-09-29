@@ -19,9 +19,10 @@ else
 fi
 
 python3 eval_ml.py --model models/router_weakened.joblib --dataset "$DATA" > logs/run_weakened.log 2>&1
-python3 -m unittest -v test_regression_ml > logs/test_real_model.log 2>&1
-echo "real model tests exit code: $?" | tee -a logs/test_real_model.log
-EVAL_MODEL=models/router_weakened.joblib python3 -m unittest -v test_regression_ml > logs/test_weakened_model.log 2>&1
-echo "weakened model tests exit code: $? (non-zero expected)" | tee -a logs/test_weakened_model.log
+# tracebacks name files by absolute path; strip this directory so logs don't carry your machine's paths
+python3 -m unittest -v test_regression_ml 2>&1 | sed "s|$PWD/||g" > logs/test_real_model.log
+echo "real model tests exit code: ${PIPESTATUS[0]}" | tee -a logs/test_real_model.log
+EVAL_MODEL=models/router_weakened.joblib python3 -m unittest -v test_regression_ml 2>&1 | sed "s|$PWD/||g" > logs/test_weakened_model.log
+echo "weakened model tests exit code: ${PIPESTATUS[0]} (non-zero expected)" | tee -a logs/test_weakened_model.log
 
 python3 review_agreement.py --dataset "$DATA" | tee logs/review_agreement.log
