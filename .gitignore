@@ -6,3 +6,6 @@ __pycache__/
 
 # trained models: regenerate with 02_ml/train.py (pickles, do not share)
 *.joblib
+
+# API keys for the LLM rater (never commit)
+.env
