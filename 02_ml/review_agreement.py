@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Inter-reviewer agreement on the double-reviewed subset of the golden set.
+"""Inter-rater agreement on the double-labeled subset of the golden set.
+
+reviewer_a is the student's own label; reviewer_b is an LLM acting as the independent
+second rater (at least 20 examples).
 
     python review_agreement.py --dataset ../data/golden.jsonl
 

@@ -5,12 +5,17 @@ Two runnable examples of an **offline evaluation harness** for EN.705.704 Module
 tickets to one of four queues (`billing`, `technical`, `account`, `shipping`) — against the
 same 60-example golden dataset, so their numbers are directly comparable.
 
+**Module 05 is an individual exercise.** Each student builds their own model and all of its
+data: the golden dataset, its labels and its provenance. Nothing is shared with a team. The
+dataset and models here are worked examples of the form your work should take, not a starting
+point to submit.
+
 **Where this sits in the course.** Module 05 builds the measuring tool; Module 07 uses it to
-choose a model. In week 5 your team has not selected a model yet, so the harness is built and
+choose a model. In week 5 no model has been selected yet, so the harness is built and
 tested against a **baseline**, and Module 07 later runs each candidate through the same harness
 and golden set. The two examples play those two roles:
 
-- `01_basic/` — the **week-5 baseline**: simple rules a team can write before any model is chosen.
+- `01_basic/` — the **week-5 baseline**: simple rules you can write before any model is chosen.
   This is the "real model" the Module 05 regression test runs against.
 - `02_ml/` — a **Module 07-style candidate**: a trained model evaluated by the same dataset contract,
   so its scores line up with the baseline's. Swap in each of your candidates the same way.
@@ -257,17 +262,23 @@ swap it in.
   component rejects cleanly. The target is **1.0**. Anything less means a bad message on the
   topic can crash the component or be routed as if it were valid.
 - **Cohen's kappa (reviewer agreement)** — agreement between two labelers corrected for
-  chance. ≥ 0.8 strong, 0.6–0.8 substantial (this set: 0.73), < 0.6 means the rubric is
+  chance; here, your labels and those of an LLM acting as second rater. ≥ 0.8 strong, 0.6–0.8 substantial (this set: 0.73), < 0.6 means the rubric is
   ambiguous. The same measure is how you **calibrate an LLM judge**: score the judge's labels
   against a human's on ≥ 20 examples.
 
-## Adapting this to your team's project
+## Adapting this to your own Module 05 work
+
+The exercise is individual: you build every piece below yourself — model, dataset, labels
+and provenance.
 
 1. Define the harness interface first: what goes in (model reference, dataset path) and
    what comes out (report schema). Then build the dataset to fit it.
-2. Replace `golden.jsonl` with your own ≥ 50 examples covering every component, with real
-   reviewers in `reviewer_a` / `reviewer_b` and the source of each example.
-3. Start with a baseline: rules, a heuristic, or one default model you expect to be a
+2. Replace `golden.jsonl` with your own ≥ 50 examples, created by you, covering every
+   component, and the source of each example. You are the reviewer: put your label in
+   `reviewer_a`. No other student reviews your data; instead, have an LLM label at least 20
+   examples independently into `reviewer_b` and adjudicate the disagreements yourself
+   (see `data/PROVENANCE.md`).
+3. Build your own baseline model: rules, a heuristic, or one default model you expect to be a
    candidate. Replace the model loader (`KeywordRouter` / `load_model`) with it, and make
    `--model` accept an API endpoint, a checkpoint or a config, so that in Module 07 each
    candidate plugs in without code changes. Keep the `evaluate()` → report contract.
