@@ -29,6 +29,16 @@ and golden set. The two examples play those two roles:
 | Messaging API | Driven through its topics: 9 checks per message, 7 malformed inputs (`message_api.py`) | Same check, shared code |
 | Extra | — | Reviewer agreement (Cohen's kappa), evidence script |
 
+**What `--model` points to.** A model is two things: an algorithm, which is code, and the
+parameters that algorithm runs with, which are data. A file in `models/` holds only the parameters;
+the harness supplies the code that runs them. In `01_basic/` the algorithm is `KeywordRouter` in
+`eval_basic.py` (count each queue's keyword hits, pick the most), and `models/keywords.json` holds
+its parameters: the keyword lists and the default queue. They are readable JSON because a person
+wrote them. In `02_ml/`, `models/router.joblib` holds parameters that `train.py` learned (vocabulary
+and weights), which scikit-learn runs. Either way, the harness only calls
+`route(text) -> (label, confidence)`, so a different parameter file, such as `keywords_weakened.json`,
+is a different model with no code change.
+
 ## Quick start
 
 ```bash
